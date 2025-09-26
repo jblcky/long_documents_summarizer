@@ -18,13 +18,24 @@ else:
 @st.cache_resource
 def load_model(model_name="sshleifer/distilbart-cnn-12-6"):
     tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForSeq2SeqLM.from_pretrained(model_name).to(device)
-    # On GPU: convert to FP16 for speed
-    if device == 0:
+    model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+
+    # Correct device handling
+    if torch.cuda.is_available():
+        device = 0  # GPU 0
         model = model.half().cuda()
     else:
-        model = model.float()  # ensure CPU works safely
-    summarizer = pipeline("summarization", model=model, tokenizer=tokenizer, device=0 if device == 0 else -1)
+        device = None  # CPU
+        model = model.float()  # keep on CPU
+
+    # Pass correct device to pipeline
+    summarizer = pipeline(
+        "summarization",
+        model=model,
+        tokenizer=tokenizer,
+        device=device if device is not None else None
+    )
+
     return tokenizer, summarizer
 
 tokenizer, summarizer = load_model()
