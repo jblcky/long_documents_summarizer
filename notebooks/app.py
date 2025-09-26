@@ -24,7 +24,7 @@ def load_model(model_name="sshleifer/distilbart-cnn-12-6"):
         model = model.half().cuda()
     else:
         model = model.float()  # ensure CPU works safely
-    summarizer = pipeline("summarization", model=model, tokenizer=tokenizer, device=device)
+    summarizer = pipeline("summarization", model=model, tokenizer=tokenizer, device=0 if device == 0 else -1)
     return tokenizer, summarizer
 
 tokenizer, summarizer = load_model()
