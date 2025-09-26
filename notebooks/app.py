@@ -8,8 +8,11 @@ import re
 from bert_score import score
 import textstat
 
-# 1️⃣ Device setup
-device = 0 if torch.cuda.is_available() else -1
+# 1️⃣ Correct device assignment
+if torch.cuda.is_available():
+    device = 0  # GPU 0
+else:
+    device = -1  # CPU fallback
 
 # 2️⃣ Load model & tokenizer (cached for fast reloads)
 @st.cache_resource
