@@ -19,8 +19,11 @@ else:
 def load_model(model_name="sshleifer/distilbart-cnn-12-6"):
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModelForSeq2SeqLM.from_pretrained(model_name).to(device)
-    if device != -1:
-        model = model.half()  # FP16 for GPU
+    # On GPU: convert to FP16 for speed
+    if device == 0:
+        model = model.half().cuda()
+    else:
+        model = model.float()  # ensure CPU works safely
     summarizer = pipeline("summarization", model=model, tokenizer=tokenizer, device=device)
     return tokenizer, summarizer
 
